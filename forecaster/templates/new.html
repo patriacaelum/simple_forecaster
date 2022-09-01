@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <header>
+        <h1>
+            Create a new forecast
+        </h1>
+    </header>
+
+    <body>
+        <form id="id_form">
+            {% csrf_token %}
+
+            <div class="forecastTitle">
+                <h2>
+                    Give your forecast a title
+                </h2>
+                <input id="id_title" type="text">
+            </div>
+
+            <div class="slider">
+                <h3>
+                    Mean
+                </h3>
+                <input id="id_mean" type="range" min="0" max="100" step="0.1" value="50" style="width: 75%;" oninput="id_meanValue.innerText = this.value">
+                <p id="id_meanValue">50</p>
+            </div>
+
+            <div class="slider">
+                <h3>
+                    Variance
+                </h3>
+                <input id="id_variance" type="range" min="0" max="100" step="0.1" value="10" style="width: 75%" oninput="id_varianceValue.innerText = this.value">
+                <p id="id_varianceValue">10</p>
+            </div>
+
+            {% block content %}
+                <div id="id_container" style="width: 75%;">
+                    <canvas id="id_graph" data-url="{% url 'graph-data' %}"></canvas>
+                </div>
+            {% endblock %}
+
+            <button id="id_submitButton" type="submit">
+                Submit
+            </button>
+        </form>
+
+    </body>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).on('submit', '#id_form', function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: 'create',
+                data: {
+                    title: $('#id_title').val(),
+                    mean: $('#id_mean').val(),
+                    variance: $('#id_variance').val(),
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                },
+                success: function() {
+                    alert("Successfully created forecast");
+                }
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        var mean = document.getElementById('id_mean');
+        var variance = document.getElementById('id_variance');
+
+        mean.addEventListener('change', updateGraph);
+        variance.addEventListener('change', updateGraph);
+
+        updateGraph();
+
+        function updateGraph() {
+            $.ajax({
+                method: "GET",
+                url: "/graph-data",
+                data: {
+                    mean: mean.value,
+                    variance: variance.value,
+                },
+                success: function(data) {
+                    const context = document.getElementById("id_graph");
+                    const chart = new Chart(
+                        context,
+                        {
+                            type: "line",
+                            data: {
+                                labels: data.labels,
+                                datasets: [{
+                                    data: data.y,
+                                }],
+                            },
+                            options: {
+                                elements: {
+                                    point: {
+                                        pointStyle: "line"
+                                    }
+                                },
+                                legend: {
+                                    display: false
+                                },
+                                responsive: true
+                            }
+                        }
+                    )
+                }
+            });
+        }
+    </script>
+
+</html>

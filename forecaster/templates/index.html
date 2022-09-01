@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <header>
+        <h1>
+            Simple Forecaster
+        </h1>
+
+        <h3>
+            by Austin Nhung
+        </h3>
+    </header>
+
+    <body>
+        <button type="button">
+            <a href="{% url 'new' %}">
+                Create a new forecast
+            </a>
+        </button>
+
+        <h2>
+            Most recent forecasts...
+        </h2>
+    </body>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+
+    <script type="text/javascript">
+        $.ajax({
+            method: "GET",
+            url: "/recent",
+            success: makeGraphs,
+        });
+
+        function makeGraphs(data) {
+            var charts = {};
+            var contexts = {};
+
+            for (var i = 0; i < data.titles.length; i++) {
+                document.body.innerHTML += '<div class="graph" style="width: 75%"><h3>' + data.titles[i] + '</h3><canvas id="id_graph_' + i + '"></canvas></div>';
+                contexts[i] = document.getElementById("id_graph_" + i);
+                charts[i] = new Chart(
+                    contexts[i],
+                    {
+                        type: "line",
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                data: data.y[i],
+                            }],
+                        },
+                        options: {
+                            elements: {
+                                point: {
+                                    pointStyle: "line",
+                                },
+                            },
+                            legend: {
+                                display: false,
+                            },
+                            responsive: true,
+                        },
+                    },
+                );
+            }
+        }
+    </script>
+</html>

@@ -1,10 +1,7 @@
-import time
-
 import numpy as np
 
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
-from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
 from scipy.stats import norm
 
 from forecaster.models import Forecast

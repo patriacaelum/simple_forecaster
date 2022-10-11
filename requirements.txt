@@ -1,3 +1,5 @@
 Django==3.2.13
 numpy==1.22.0
+pylint==2.13.5
+pylint-django==2.5.3
 scipy==1.7.3
